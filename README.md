@@ -9,6 +9,7 @@ pinned: false
 ---
 
 # Zindi Lacuna Malaria Detection Challenge
+https://www.kaggle.com/code/noob786/zindi-lacuna-malaria-detection-challenge-ai
 
 This project implements a **YOLO11x** object detection model to identify malaria parasites and white blood cells in blood smear images as part of the [Zindi Lacuna Malaria Detection Challenge](https://zindi.africa/competitions/lacuna-malaria-detection-challenge). The model is designed to assist healthcare professionals by automatically detecting and classifying **Trophozoite** (malaria parasite), **White Blood Cells (WBC)**, and **Negative** regions in microscopy images.
 
