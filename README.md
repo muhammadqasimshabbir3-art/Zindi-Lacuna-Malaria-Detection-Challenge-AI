@@ -9,186 +9,78 @@ pinned: false
 ---
 
 # Zindi Lacuna Malaria Detection Challenge
-https://www.kaggle.com/code/noob786/zindi-lacuna-malaria-detection-challenge-ai?scriptVersionId=316457281
-This project implements a YOLOv8 object detection model to identify malaria parasites in blood samples as part of the **Zindi Lacuna Malaria Detection Challenge**. The model is designed to detect and classify malaria parasites in microscopy images, helping healthcare professionals identify and manage malaria cases efficiently.
+
+This project implements a **YOLO11x** object detection model to identify malaria parasites and white blood cells in blood smear images as part of the [Zindi Lacuna Malaria Detection Challenge](https://zindi.africa/competitions/lacuna-malaria-detection-challenge). The model is designed to assist healthcare professionals by automatically detecting and classifying **Trophozoite** (malaria parasite), **White Blood Cells (WBC)**, and **Negative** regions in microscopy images.
 
 ## About the Project
 
-The Zindi Lacuna Malaria Detection Challenge is focused on leveraging machine learning and computer vision to solve healthcare problems in malaria diagnosis. Malaria remains a significant health concern globally, and early detection is critical. This project uses state-of-the-art YOLOv8 object detection technology to automatically identify malaria parasites in blood microscopy images.
+Malaria is a life-threatening disease caused by parasites transmitted through mosquito bites. Rapid and accurate detection of malaria parasites in blood samples is critical for effective treatment. This project leverages state-of-the-art YOLO11x (Ultralytics) object detection, trained on a multi‑GPU setup, to deliver robust performance even with challenging microscopy data.
 
-### Key Features:
-- **Real-time Detection**: YOLOv8-based model for fast and accurate parasite detection
-- **High Performance**: Trained over 60 epochs with excellent convergence
-- **Multiple Metrics**: Uses precision, recall, and mAP scores for comprehensive evaluation
-- **Practical Application**: Can be deployed for diagnostic support and malaria screening
+### Key Features
+- **Modern Architecture**: YOLO11x – the latest YOLO model with improved accuracy and efficiency.
+- **Multi‑GPU Training**: Utilized 4× NVIDIA L4 GPUs with Distributed Data Parallel (DDP) for faster training.
+- **Advanced Augmentations**: Mosaic, mixup, copy-paste, random perspective, HSV shifts, and more.
+- **Early Stopping**: Patience of 8 epochs to avoid overfitting.
+- **Deployment Ready**: Can be integrated into diagnostic support systems via the provided Gradio app.
 
 ## Model Performance
 
-The trained model achieves strong performance metrics on the validation dataset:
+The best model was achieved at **epoch 34** (early stopping triggered after 42 total epochs). Validation results on the held‑out set:
 
-| Metric | Final Value |
-|--------|-------------|
-| **Precision** | 75.78% |
-| **Recall** | 66.25% |
-| **mAP50** | 74.62% |
-| **mAP50-95** | 51.67% |
-| **Training Epochs** | 60 |
+| Metric                     | Overall / Class     | Value   |
+|----------------------------|---------------------|---------|
+| **Precision (all classes)** |                     | 45.6%   |
+| **Recall (all classes)**    |                     | 22.1%   |
+| **mAP@0.5**                 |                     | 22.1%   |
+| **mAP@0.5:0.95**            |                     | 10.9%   |
+| **Trophozoite**             | Precision / Recall  | 54.3% / 30.3% |
+|                             | mAP@0.5             | 29.3%   |
+| **WBC**                     | Precision / Recall  | 82.6% / 35.8% |
+|                             | mAP@0.5             | 37.0%   |
+| **Negative**                | Precision / Recall  | 0.0% / 0.0% |
 
-The model shows consistent improvement throughout training with validation metrics stabilizing after epoch 40+.
+> **Note**: The Negative class had no true positive detections, likely due to class imbalance or definition. The model focuses on detecting parasite and WBC regions.
+
+Training converged after 42 epochs in **0.9 hours** on 4 GPUs. The final model weights are saved as `best.pt` (114 MB).
 
 ## Installation
 
 1. Clone the repository:
-   ```
+   ```bash
    git clone <repository-url>
    cd Zindi-Lacuna-Malaria-Detection-Challenge-AI
-   ```
+   
+Requirements
+   Core dependencies (see requirements.txt for exact versions): 
+   ultralytics – YOLO11 training and inference
+   torch, torchvision – PyTorch with CUDA support
+   opencv-python, numpy, pandas, matplotlib
+   gradio – for the interactive demo app
 
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+Results & Discussion
+   The YOLO11x model achieves reasonable detection of Trophozoite (mAP50 ≈ 29%) and WBC (mAP50 ≈ 37%), but struggles with the Negative class (likely due to definition or extreme class imbalance). The overall mAP50 of 22% reflects the difficulty of the task – parasites are small and often overlap with WBCs.
 
-## Requirements
+Future improvements could include:
+   Test‑time augmentation (TTA)
+   Model ensemble
+   Hard negative mining
+   Class‑weighted loss functions
 
-The following packages are required to run this project:
+Contributing
+   Contributions are welcome! You can help by:
+   Improving data augmentation strategies
+   Tuning hyperparameters (learning rate, mosaic/mixup probabilities)
+   Adding post‑processing heuristics
+   Optimising the Gradio interface for clinical use
+   Please open an issue or pull request.
 
-- **ultralytics** - YOLOv8 object detection framework
+License
+   This project is part of the Zindi Lacuna Malaria Detection Challenge. Model weights and code are shared for research and educational purposes.
 
-### Additional Dependencies (Python):
-```
-ultralytics
-opencv-python
-numpy
-pandas
-matplotlib
-torch
-torchvision
-```
+Author
+   Muhammad Qasim Shabbeer
 
-To install all dependencies, run:
-```bash
-pip install -r requirements.txt
-```
-
-## Usage
-
-### Jupyter Notebook
-
-Run the notebook to train the model, evaluate results, or perform inference:
-```bash
-jupyter notebook notebook.ipynb
-```
-
-The notebook includes:
-- Data loading and preprocessing
-- YOLOv8 model training
-- Model evaluation and metrics calculation
-- Inference on test images
-
-### Python App
-
-The `app.py` file contains the application code for deployment. You can extend it to:
-- Create a web interface for predictions
-- Set up API endpoints for model inference
-- Build a real-time detection system
-
-Run the application:
-```bash
-python app.py
-```
-
-### Model Inference
-
-The trained model weights are stored in `best.pt`. You can use it for inference with the Ultralytics YOLO library:
-
-```python
-from ultralytics import YOLO
-
-# Load the model
-model = YOLO('best.pt')
-
-# Perform inference
-results = model.predict(source='image.jpg', conf=0.5)
-
-# Display results
-results[0].show()
-```
-
-## Project Files
-
-- **notebook.ipynb** - Main Jupyter notebook with complete pipeline
-- **app.py** - Gradio application for deployment (can be extended)
-- **best.pt** - Trained YOLOv8 model weights
-- **requirements.txt** - Python dependencies
-- **results.csv** - Training metrics across 60 epochs
-- **results.png** - Visualization of training results
-- **confusion_matrix.png** - Confusion matrix for model evaluation
-- **labels.jpg** - Dataset class labels visualization
-- **Box*.png** - Performance curves (Precision, Recall, F1)
-
-## Dataset
-
-The project uses the **Zindi Lacuna Malaria Dataset** from the Lacuna Malaria Detection Challenge. The dataset includes:
-- Training images with annotated bounding boxes for parasite locations
-- Validation split for model evaluation
-- Test set for final evaluation
-
-The dataset structure is organized as:
-```
-dataset/
-├── images/
-│   ├── train/
-│   ├── val/
-│   └── test/
-├── labels/
-│   ├── train/
-│   └── val/
-└── Test.csv
-```
-
-## Results
-
-### Training Results:
-- **Total Training Time**: ~9,140 seconds (~2.5 hours)
-- **Number of Epochs**: 60
-- **Final Precision**: 75.78%
-- **Final Recall**: 66.25%
-- **Final mAP50**: 74.62%
-- **Final mAP50-95**: 51.67%
-
-### Performance Curves:
-The project includes several visualization files showing model performance:
-- `results.png` - Overall training curves
-- `confusion_matrix.png` - Detailed class predictions
-- `BoxP_curve.png` - Precision curve
-- `BoxR_curve.png` - Recall curve
-- `BoxF1_curve.png` - F1-score curve
-
-## Contributing
-
-Feel free to contribute to this project by submitting issues or pull requests. You can:
-- Improve model architecture
-- Add data augmentation techniques
-- Optimize hyperparameters
-- Create better preprocessing pipelines
-- Build deployment features
-
-## License
-
-This project is provided as part of the Zindi Lacuna Malaria Detection Challenge.
-
-## Author
-
-**Muhammad Qasim Shabbeer**
-
-## Acknowledgments
-
-- Zindi for hosting the Lacuna Malaria Detection Challenge
-- Ultralytics for the YOLOv8 framework
-- Contributors and participants in the challenge
-
-
-
-
-
+Acknowledgements
+   Zindi Africa for hosting the competition and providing the dataset 
+   Ultralytics for the YOLO11 framework and training utilities
+   Kaggle for providing GPU resources (4× NVIDIA L4)
